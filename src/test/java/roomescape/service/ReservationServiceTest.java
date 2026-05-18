@@ -9,8 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.domain.reservation.ReservationCommand;
-import roomescape.domain.reservation.ReservationWithTime;
-import roomescape.domain.reservation.ReservationWithTimeAndTheme;
+import roomescape.domain.reservation.Reservation;
 import roomescape.domain.reservationTime.ReservationTime;
 import roomescape.domain.reservationTime.ReservationTimeCommand;
 import roomescape.domain.reservationTime.ReservationTimeCondition;
@@ -28,14 +27,10 @@ import roomescape.repository.reservationTime.ReservationTimeRepository;
 import roomescape.repository.theme.ThemeRepository;
 
 public class ReservationServiceTest {
-    private ReservationRepository createReservationRepository(ReservationWithTimeAndTheme reservation, boolean isExist, int updatedRow) {
+    private ReservationRepository createReservationRepository(Reservation reservation, boolean isExist, int updatedRow) {
         return new ReservationRepository() {
-            @Override public Optional<ReservationWithTimeAndTheme> getReservationWithTimeAndTheme(long id) { return Optional.ofNullable(reservation); }
-            @Override public Optional<ReservationWithTime> getReservationWithTime(long id) {
-                if (reservation == null) return Optional.empty();
-                return Optional.of(new ReservationWithTime(reservation.id(), reservation.name(), reservation.date(), reservation.time(), reservation.reservationTheme().id()));
-            }
-            @Override public List<ReservationWithTimeAndTheme> getAllReservation(String name) { return List.of(); }
+            @Override public Optional<Reservation> getReservationWithTimeAndTheme(long id) { return Optional.ofNullable(reservation); }
+            @Override public List<Reservation> getAllReservation(String name) { return List.of(); }
             @Override public long addReservation(ReservationCommand reservationCommand) {
                 return reservation != null ? reservation.id() : 1L;
             }
@@ -89,7 +84,7 @@ public class ReservationServiceTest {
     @Test
     @DisplayName("예약 삭제 시 본인의 예약이 아니면 UnauthorizedException 발생")
     void deleteReservationFailByUnauthorizedTest() {
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", LocalDate.now().plusDays(1),
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")
@@ -106,7 +101,7 @@ public class ReservationServiceTest {
     @Test
     @DisplayName("예약 삭제 시 이미 지난 날짜의 예약이면 InvalidRequestValueException 발생")
     void deleteReservationFailByPastDateTest() {
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", LocalDate.now().minusDays(1),
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")
@@ -124,7 +119,7 @@ public class ReservationServiceTest {
     @DisplayName("예약 수정 시 기존 정보와 동일하면 InvalidRequestValueException 발생")
     void updateReservationFailBySameValueTest() {
         LocalDate date = LocalDate.now().plusDays(6);
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", date,
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")
@@ -146,7 +141,7 @@ public class ReservationServiceTest {
     @DisplayName("예약 수정 시 수정하려는 시간에 이미 다른 예약이 존재하면 ConflictException 발생")
     void updateReservationFailByDuplicateTest() {
         LocalDate date = LocalDate.now().plusDays(6);
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", date,
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")
@@ -169,7 +164,7 @@ public class ReservationServiceTest {
     @DisplayName("예약 수정 시 이미 지난 날짜의 예약이면 InvalidRequestValueException 발생")
     void updateReservationFailByPastDateTest() {
         LocalDate pastDate = LocalDate.now().minusDays(1);
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", pastDate,
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")
@@ -191,7 +186,7 @@ public class ReservationServiceTest {
     @Test
     @DisplayName("예약 수정 시 본인의 예약이 아니면 UnauthorizedException 발생")
     void updateReservationFailByUnauthorizedTest() {
-        ReservationWithTimeAndTheme reservation = new ReservationWithTimeAndTheme(
+        Reservation reservation = new Reservation(
                 1, "브라운", LocalDate.now().plusDays(6),
                 new ReservationTime(1, LocalTime.parse("10:00")),
                 new Theme(1, "테스트", "설명", "url")

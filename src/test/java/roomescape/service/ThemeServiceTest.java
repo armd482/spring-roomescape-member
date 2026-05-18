@@ -10,9 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import roomescape.domain.reservation.ReservationCommand;
-import roomescape.domain.reservation.ReservationWithTime;
-import roomescape.domain.reservation.ReservationWithTimeAndTheme;
-import roomescape.domain.reservationTime.ReservationTime;
+import roomescape.domain.reservation.Reservation;
 import roomescape.domain.theme.PopularThemeCondition;
 import roomescape.domain.theme.ReservationThemeCommand;
 import roomescape.domain.theme.ReservationThemeWithCount;
@@ -25,9 +23,8 @@ import roomescape.repository.theme.ThemeRepository;
 public class ThemeServiceTest {
     private ReservationRepository createReservationRepository(boolean isExistTheme) {
         return new ReservationRepository() {
-            @Override public Optional<ReservationWithTimeAndTheme> getReservationWithTimeAndTheme(long id) { return Optional.empty(); }
-            @Override public Optional<ReservationWithTime> getReservationWithTime(long id) { return Optional.empty(); };
-            @Override public List<ReservationWithTimeAndTheme> getAllReservation(String name) { return List.of(); }
+            @Override public Optional<Reservation> getReservationWithTimeAndTheme(long id) { return Optional.empty(); }
+            @Override public List<Reservation> getAllReservation(String name) { return List.of(); }
             @Override public long addReservation(ReservationCommand reservationCommand) { return 0; }
             @Override public void deleteReservation(long id) {}
             @Override public int updateAll(long id, ReservationCommand command) { return 0; }

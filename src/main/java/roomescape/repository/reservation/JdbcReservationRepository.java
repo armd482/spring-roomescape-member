@@ -11,9 +11,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import roomescape.domain.QueryWithParams;
-import roomescape.domain.reservation.ReservationWithTimeAndTheme;
+import roomescape.domain.reservation.Reservation;
 import roomescape.domain.reservation.ReservationCommand;
-import roomescape.domain.reservation.ReservationWithTime;
 import roomescape.domain.reservationTime.ReservationTime;
 import roomescape.domain.theme.Theme;
 
@@ -96,18 +95,8 @@ public class JdbcReservationRepository implements ReservationRepository {
                     AND date = ?\s
             )
             """;
-    private static final RowMapper<ReservationWithTime> RESERVATION_WITH_TIME_MAPPER = (rs, rowNumber) -> new ReservationWithTime(
-            rs.getLong(COLUMN_ID),
-            rs.getString(COLUMN_NAME),
-            rs.getDate(COLUMN_DATE).toLocalDate(),
-            new ReservationTime(
-                    rs.getLong(ALIAS_TIME_ID),
-                    rs.getTime(ALIAS_START_AT).toLocalTime()
-            ),
-            rs.getLong(ALIAS_THEME_ID)
-    );
 
-    private static final RowMapper<ReservationWithTimeAndTheme> MAPPER = (rs, rowNumber) -> new ReservationWithTimeAndTheme(
+    private static final RowMapper<Reservation> MAPPER = (rs, rowNumber) -> new Reservation(
             rs.getLong(COLUMN_ID),
             rs.getString(COLUMN_NAME),
             rs.getDate(COLUMN_DATE).toLocalDate(),
@@ -135,21 +124,14 @@ public class JdbcReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public List<ReservationWithTimeAndTheme> getAllReservation(String name) {
+    public List<Reservation> getAllReservation(String name) {
         QueryWithParams queryWithParams = getReservationsQuery(name);
         return Collections.unmodifiableList(jdbcTemplate.query(queryWithParams.query(), MAPPER, queryWithParams.params().toArray()));
     }
 
     @Override
-    public Optional<ReservationWithTimeAndTheme> getReservationWithTimeAndTheme(long id) {
+    public Optional<Reservation> getReservationWithTimeAndTheme(long id) {
         return jdbcTemplate.query(SELECT_WITH_TIME_AND_THEME_SQL + CONDITION_ID_SQL, MAPPER, id)
-                .stream()
-                .findFirst();
-    }
-
-    @Override
-    public Optional<ReservationWithTime> getReservationWithTime(long id) {
-        return jdbcTemplate.query(SELECT_WITH_TIME_BY_ID_SQL + CONDITION_ID_SQL, RESERVATION_WITH_TIME_MAPPER, id)
                 .stream()
                 .findFirst();
     }
