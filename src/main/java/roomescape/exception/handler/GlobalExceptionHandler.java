@@ -23,8 +23,11 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = STATUS_MAP.get(customException.getClass());
 
         if(httpStatus == null) {
-            throw new RuntimeException(customException.getMessage(), customException);
+            log.error("STATUS_MAP에 등록되지 않은 CustomException 발생: ", customException);
+            return getResponse(HttpStatus.INTERNAL_SERVER_ERROR, "시스템 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
         }
+
+        log.warn("잘못된 클라이언트 요청: {}", customException.getMessage());
 
         return getResponse(httpStatus, customException.getMessage());
     }
@@ -32,6 +35,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException exception) {
         String errorMessage = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
+
+        log.warn("잘못된 클라이언트 입력: {}", errorMessage);
 
         return getResponse(HttpStatus.BAD_REQUEST, errorMessage);
     }
@@ -48,8 +53,8 @@ public class GlobalExceptionHandler {
         return getResponse(HttpStatus.BAD_REQUEST, "요청하신 JSON 데이터의 포맷이 잘못되었습니다.");
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(Exception e) {
         log.error("RuntimeException 발생: ", e);
         return getResponse(HttpStatus.INTERNAL_SERVER_ERROR, "시스템 내부 오류가 발생했습니다. 관리자에게 문의하세요.");    }
 
