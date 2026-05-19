@@ -9,6 +9,7 @@ import roomescape.domain.reservation.Reservation;
 import roomescape.domain.reservation.ReservationCommand;
 import roomescape.domain.reservationTime.ReservationTime;
 import roomescape.exception.ConflictException;
+import roomescape.exception.ForbiddenException;
 import roomescape.exception.NotFoundResourceException;
 import roomescape.exception.UnauthorizedException;
 import roomescape.repository.theme.ThemeRepository;
@@ -92,18 +93,15 @@ public class ReservationService {
     }
 
     private void validateDeleteReservation(long id, String name) {
-        Reservation reservationWithTime = getReservationWithTimeAndData(id);
+        Reservation reservation = getReservationWithTimeAndData(id);
 
-        if (!reservationWithTime.name().equals(name)) {
-            throw new UnauthorizedException(UNAUTHORIZED_DELETE_RESERVATION_REQUEST);
-        }
-        reservationWithTime.validDateReservationPastDateTime(CANNOT_DELETE_PAST_RESERVATION);
+        validEditReservationPermission(name, reservation.name(), UNAUTHORIZED_DELETE_RESERVATION_REQUEST);
+
+        reservation.validDateReservationPastDateTime(CANNOT_DELETE_PAST_RESERVATION);
     }
 
     private void validateUpdateReservation(String name, ReservationCommand reservationCommand, Reservation reservation) {
-        if (!reservation.name().equals(name)) {
-            throw new UnauthorizedException(UNAUTHORIZED_UPDATE_RESERVATION_REQUEST);
-        }
+        validEditReservationPermission(name, reservation.name(), UNAUTHORIZED_UPDATE_RESERVATION_REQUEST);
 
         validateAvailableReservation(reservationCommand.timeId(), reservationCommand.themeId(), reservationCommand.date());
 
@@ -125,6 +123,16 @@ public class ReservationService {
 
         if (reservationRepository.existsByTimeIdAndThemeIdAndDate(timeId, themeId, date)) {
             throw new ConflictException(DUPLICATED_RESERVATION_REQUEST);
+        }
+    }
+
+    private void validEditReservationPermission(String authName, String reservationOwnerName, String errorMessage) {
+        if(authName == null) {
+            throw new UnauthorizedException(errorMessage);
+        }
+
+        if (!reservationOwnerName.equals(authName)) {
+            throw new ForbiddenException(errorMessage);
         }
     }
 }

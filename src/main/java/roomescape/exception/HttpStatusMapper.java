@@ -8,6 +8,7 @@ public class HttpStatusMapper {
             ConflictException.class, HttpStatus.CONFLICT,
             InvalidRequestValueException.class, HttpStatus.BAD_REQUEST,
             NotFoundResourceException.class, HttpStatus.NOT_FOUND,
-            UnauthorizedException.class, HttpStatus.UNAUTHORIZED
+            UnauthorizedException.class, HttpStatus.UNAUTHORIZED,
+            ForbiddenException.class, HttpStatus.FORBIDDEN
     );
 }
