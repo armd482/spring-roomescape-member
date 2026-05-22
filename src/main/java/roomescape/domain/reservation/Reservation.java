@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import roomescape.domain.reservationTime.ReservationTime;
 import roomescape.domain.theme.Theme;
+import roomescape.exception.ForbiddenException;
 import roomescape.exception.InvalidRequestValueException;
+import roomescape.exception.UnauthorizedException;
 
 public record Reservation(long id, String name, LocalDate date, ReservationTime time, Theme theme) {
     private static final String INVALID_NAME_NULL = "이름은 필수입니다.";
@@ -29,6 +31,16 @@ public record Reservation(long id, String name, LocalDate date, ReservationTime 
     public void validateEqualValue(String name, LocalDate date, long timeId, long themeId) {
         if(isEqualValue(name, date, timeId, themeId)) {
             throw new InvalidRequestValueException(CANNOT_UPDATE_SAME_VALUE);
+        }
+    }
+
+    public void validateEditablePermission(String name, String errorMessage) {
+        if(name == null) {
+            throw new UnauthorizedException(errorMessage);
+        }
+
+        if (!name.equals(this.name)) {
+            throw new ForbiddenException(errorMessage);
         }
     }
 
