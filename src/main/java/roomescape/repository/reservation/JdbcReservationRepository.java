@@ -34,19 +34,6 @@ public class JdbcReservationRepository implements ReservationRepository {
     private static final String ALIAS_THEME_DESCRIPTION = "themeDescription";
     private static final String ALIAS_THEME_IMAGE_URL = "themeImageUrl";
 
-    private static final String SELECT_WITH_TIME_BY_ID_SQL = """
-        SELECT
-            r.id AS id,
-            r.name AS name,
-            r.date AS date,
-            rt.id AS timeId,
-            rt.start_at AS startAt,
-            t.id AS themeId
-        FROM reservation AS r
-        JOIN reservation_time AS rt ON r.time_id = rt.id
-        JOIN theme AS t ON r.theme_id = t.id
-    """;
-
     private static final String SELECT_WITH_TIME_AND_THEME_SQL = """
         SELECT
             r.id AS id,

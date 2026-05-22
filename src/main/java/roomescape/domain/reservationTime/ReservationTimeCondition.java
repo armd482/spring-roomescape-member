@@ -28,10 +28,9 @@ public record ReservationTimeCondition(LocalDate date, long themeId) {
         }
     }
 
-    private static long validateThemeId(long themeId) {
+    private static void validateThemeId(long themeId) {
         if(themeId <= 0) {
             throw new InvalidRequestValueException(INVALID_THEME_ID);
         }
-        return themeId;
     }
 }
