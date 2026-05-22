@@ -19,9 +19,9 @@ import roomescape.domain.theme.ReservationThemeCommand;
 import roomescape.domain.theme.ReservationThemeWithCount;
 import roomescape.domain.theme.Theme;
 import roomescape.exception.ConflictException;
+import roomescape.exception.ForbiddenException;
 import roomescape.exception.InvalidRequestValueException;
 import roomescape.exception.NotFoundResourceException;
-import roomescape.exception.UnauthorizedException;
 import roomescape.repository.reservation.ReservationRepository;
 import roomescape.repository.reservationTime.ReservationTimeRepository;
 import roomescape.repository.theme.ThemeRepository;
@@ -94,7 +94,7 @@ public class ReservationServiceTest {
         );
 
         assertThatThrownBy(() -> reservationService.deleteReservation(1, "테스트"))
-                .isExactlyInstanceOf(UnauthorizedException.class)
+                .isExactlyInstanceOf(ForbiddenException.class)
                 .hasMessage("해당 예약을 삭제할 권한이 없습니다.");
     }
 
@@ -184,7 +184,7 @@ public class ReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 수정 시 본인의 예약이 아니면 UnauthorizedException 발생")
+    @DisplayName("예약 수정 시 본인의 예약이 아니면 403 발생")
     void updateReservationFailByUnauthorizedTest() {
         Reservation reservation = new Reservation(
                 1, "브라운", LocalDate.now().plusDays(6),
@@ -198,7 +198,7 @@ public class ReservationServiceTest {
         ReservationCommand updateCommand = new ReservationCommand("브라운", LocalDate.now().plusDays(2), 2, 2);
 
         assertThatThrownBy(() -> reservationService.updateReservation(1, "테스트", updateCommand))
-                .isExactlyInstanceOf(UnauthorizedException.class)
+                .isExactlyInstanceOf(ForbiddenException.class)
                 .hasMessage("해당 예약을 수정할 권한이 없습니다.");
     }
 

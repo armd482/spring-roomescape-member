@@ -114,11 +114,11 @@ class ReservationControllerTest {
     }
 
     @Test
-    @DisplayName("예약 삭제 시 헤더의 이름과 예약자 이름이 다르면 401을 반환한다")
+    @DisplayName("예약 삭제 시 헤더의 이름과 예약자 이름이 다르면 403을 반환한다")
     void deleteReservationUnauthorized() throws Exception {
         mockMvc.perform(delete("/reservations/2")
                         .header("name", "다른사람"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.errorMessage").value("해당 예약을 삭제할 권한이 없습니다."));
     }
 
@@ -163,7 +163,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @DisplayName("예약 수정 시 헤더의 이름과 예약자 이름이 다르면 401을 반환한다")
+    @DisplayName("예약 수정 시 헤더의 이름과 예약자 이름이 다르면 403을 반환한다")
     void updateReservationUnauthorized() throws Exception {
         Map<String, Object> updateParams = Map.of(
                 "id", 2L,
@@ -177,7 +177,7 @@ class ReservationControllerTest {
                         .header("name", "임꺽정")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateParams)))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.errorMessage").value("해당 예약을 수정할 권한이 없습니다."));
     }
 }
